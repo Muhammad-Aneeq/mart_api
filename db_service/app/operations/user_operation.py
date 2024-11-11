@@ -35,25 +35,21 @@ class UserOperation:
 
     async def operations(self):
         with get_session() as session:
+            user_crud = User_Crud(session)
+            response = {}
+
             if self.operation == "create":
-                user_crud = User_Crud(session)
                 status = user_crud.create_user(CreateUser(**self.entity_data))
                 response = {"request_id": self.request_id, "status": status}
-                obj = json.dumps(response).encode("utf-8")
-                # await send_producer(config.KAFKA_USER_DB_RESPONSE, obj)
-                
+
             elif self.operation == "update":
-                
-                user_crud = User_Crud(session)
                 status = user_crud.update_user(self.entity_data, self.request_id)
                 response = {"request_id": self.request_id, "status": status}
-                obj = json.dumps(response).encode("utf-8")
-                # await send_producer(config.KAFKA_USER_DB_RESPONSE, obj)
-                
+
             elif self.operation == "delete":
-                
-                user_crud = User_Crud(session)
                 status = user_crud.delete_user(self.request_id)
                 response = {"request_id": self.request_id, "status": status}
-                obj = json.dumps(response).encode("utf-8")
-                # await send_producer(config.KAFKA_USER_DB_RESPONSE, obj)
+
+            obj = json.dumps(response).encode("utf-8")
+            # await send_producer(config.KAFKA_USER_DB_RESPONSE, obj)
+            return response

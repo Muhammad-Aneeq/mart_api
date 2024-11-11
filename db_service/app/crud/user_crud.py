@@ -1,3 +1,5 @@
+import sys
+sys.path.append("..")
 from fastapi import HTTPException
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
@@ -39,14 +41,17 @@ class User_Crud:
         - "failed": if an exception occurs during the operation
     """
     try:
+      print("user>>>>",user)
       statement = select(User).where(User.email == user.email)
       result = self.session.exec(statement).first()
-      
+      print("result>>>>",result)
       if result:
         return {"status": "exist"}
       
       user.password = self.get_hash_password(user.password)
+      print("user.password>>>>",user.password)
       db_user = User.model_validate(user)
+      print("db_user>>>>",db_user)
       self.session.add(db_user)
       self.session.commit()
       self.session.refresh(db_user)
@@ -112,7 +117,6 @@ class User_Crud:
             3. "failed-delete" if an exception occurs during the operation
         """
         try:
-
             statement = (
                 select(User).where(User.guid == request_id).where(User.status == 1)
             )

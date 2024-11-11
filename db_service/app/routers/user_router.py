@@ -2,8 +2,11 @@
 from app.config import sessionDep
 from app.crud.user_crud import User_Crud
 from fastapi import Depends, HTTPException, APIRouter, Form
-from shared.models.user import PublicUser
+from shared.models.user import PublicUser, CreateUser
 from shared.models.user import LoginRequest
+from app.operations.user_operation import UserOperation
+
+
 def get_user_crud(session: sessionDep) -> User_Crud:
     return User_Crud(session)
 
@@ -12,13 +15,22 @@ router = APIRouter(
     tags=["users"],
 )
 
-"""
-End-Point handles user login by verifying the username and password provided in the
-request
 
-user_crud is a dependency that is used to interact with user data in the database. it contains methods for retrieving user information
-and verifying passwords
-"""
+
+@router.post("/operation")
+async def user_operation(data: dict):
+    try:
+        user_operation = UserOperation(data)
+        print("data>>>>",data)
+        response = await user_operation.operations()  # Executes the operation
+        print("response>>>>",response)
+        return response
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error occurred in db_service: {str(e)}")
+        
+
+
 @router.post("/login", response_model=PublicUser)    
 async def login(login_request: LoginRequest, user_crud=Depends(get_user_crud)):
     username = login_request.username

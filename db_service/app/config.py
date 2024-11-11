@@ -1,14 +1,23 @@
+import sys
+sys.path.append("..")
 import os
 from typing import Annotated
 from dotenv import load_dotenv
 from fastapi import Depends
-from sqlmodel import Session, create_engine
+from sqlmodel import Session, create_engine,SQLModel
 from contextlib import contextmanager
+from shared.models.user import User
 load_dotenv()
 
 connection = os.environ.get("CONNECTION")
 print("CONNECTION>>>",connection)
 engine = create_engine(connection)  # type: ignore
+
+
+# Function to initialize the database and create tables if they don't exist
+def init_db():
+    SQLModel.metadata.create_all(engine)
+
 
 @contextmanager
 def get_session():
